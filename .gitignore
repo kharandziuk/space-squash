@@ -1,1 +1,6 @@
-static/components
+static/
+server/*.js
+node_modules/
+*.swp
+*.swo
+app.js
