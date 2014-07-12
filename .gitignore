@@ -1,4 +1,4 @@
-static/components
-node_modules
+static/
+node_modules/
 *.swp
 *.swo
