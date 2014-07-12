@@ -1,14 +1,21 @@
 define [
+  'Game'
   'marionette'
   'templates'
   'io'
   'backbone.picky'
+  'kineticjs'
+  'game/game'
+  'game/player'
+  'game/ball'
+  'game/opponent'
+  'game/initStage'
 ], (
+  Game
   Marionette
   T
   io
 ) ->
-
   require(['backbone.syphon'])
 
   class LoginModel extends Backbone.Model
@@ -38,7 +45,6 @@ define [
       return arrRes
 
     
-
   class LoginView extends Marionette.ItemView
     template: T['login']
 
@@ -77,14 +83,17 @@ define [
 
   class GameView extends Marionette.ItemView
     template: T['game']
+    initialize: ({model, game})->
+      @game = game
+      
     onShow: ->
-      socket = io.connect()
-      socket.on('connect', ()->
-        console.log 'kapa'
-        socket.emit('wait', 'content')
-      )
-      window.socket = socket
-    
+      {host, token} = @model.attributes
+      initStage 'board',  @game.socket
+      console.assert host?
+      if host
+        @game.wait(token)
+      else
+        @game.join(token)
 
 
   class Hub extends Marionette.Controller
@@ -94,6 +103,7 @@ define [
       @userModel = new LoginModel
       @showLoginView(@userModel)
       @userModel.on('change:token', (model)=>
+        model.set host: true
         @showGame(model: model)
       )
 
@@ -107,9 +117,12 @@ define [
       listView = new ListView(collection: games)
       @layout.list.show listView
       games.on('select:one', (model)=>
+        model.set host: false
         @showGame(model: model)
       )
 
-    showGame: ()->
-      gameView = new GameView()
+    showGame: ({model})->
+      socket = io.connect()
+      game = new Game(socket)
+      gameView = new GameView(model: model, game: game)
       @region.show gameView
