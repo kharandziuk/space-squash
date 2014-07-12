@@ -15,11 +15,12 @@ app.get('/', (req, res) ->
 
 app.post('/login', (req, res)->
   data = req.body
-  num = _.keys(data).length
+  console.log data
+  num = _.keys(users).length
   token = "token#{num}"
   users[token] = data.email
-  console.log token
-  res.end(token)
+  data.token = token
+  res.end(JSON.stringify data)
 )
 
 app.get('/login', (req, res)->
