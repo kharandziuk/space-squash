@@ -7,4 +7,7 @@ app.get('/', (req, res) ->
   res.sendfile("#{__dirname}/index.html")
 )
 
-app.listen(3000)
+server = app.listen(3000)
+
+chatServer = require('./server/GameServer')
+chatServer.listen server
