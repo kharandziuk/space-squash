@@ -1,4 +1,4 @@
-initStage = ->
+initStage = (id, socket)->
 
   # background
 
@@ -43,7 +43,7 @@ initStage = ->
     textLevel.attrs.text = "Level: " + game.level
     textScore.attrs.text = "Score: " + player.points
   stage = new Kinetic.Stage(
-    container: "board"
+    container: id
     width: 800
     height: 600
   )
@@ -70,16 +70,20 @@ initStage = ->
     y += 38.7
   backgroundLayer.add background
   backgroundLayer.add middleLine
+
   foregroundLayer = new Kinetic.Layer()
+
   player = new Player()
-  foregroundLayer.add player
   opponent = new Opponent()
-  foregroundLayer.add opponent
   ball = new Ball()
-  window.ball = ball
+
+  foregroundLayer.add player
+  foregroundLayer.add opponent
   foregroundLayer.add ball
+
   anim = new Kinetic.Animation(animOnframe, foregroundLayer)
   game = new Game(stage, anim, foregroundLayer, player, opponent, ball)
+
   textLives = new Kinetic.Text(
     x: 0
     y: 0
@@ -171,6 +175,3 @@ initStage = ->
 
   document.addEventListener "keyup", (e) ->
     input[e.which] = false
-
-$ ->
-  initStage()
