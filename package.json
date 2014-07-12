@@ -13,9 +13,9 @@
     "load-grunt-tasks": "*",
     "requirejs": "^2.1.11",
     "sinon": "^1.9.1",
-    "time-grunt": "*",
+    "time-grunt": "*"
   },
   "scripts": {
     "test": "???"
-  },
+  }
 }
