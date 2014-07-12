@@ -6,12 +6,36 @@ define [
   T
 ) ->
 
+  require(['backbone.syphon'])
 
-  class LoginView extends Backbone.ItemView
+  class LoginModel extends Backbone.Model
+    url: 'login'
+    idArgument: 'email'
+    
+
+  class LoginView extends Marionette.ItemView
     template: T['login']
+
+    events:
+      "submit form": "formSubmitted"
+
+    formSubmitted: (e)->
+      console.log @
+      e.preventDefault()
+      data = Backbone.Syphon.serialize(this)
+      console.log data
+      @model.set(data)
+
 
   class Hub extends Marionette.Controller
 
     initialize: ({region})->
-      loginView = new LoginView
+      loginModel = new LoginModel
+      loginView = new LoginView(model: loginModel)
       region.show loginView
+      loginModel.on('change', ->
+        @sync("create").done((res)->
+          alert 'cp'
+          console.log res
+        )
+      )

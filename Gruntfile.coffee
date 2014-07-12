@@ -40,9 +40,9 @@ module.exports = (grunt) ->
           processName: (name) ->
             console.log name
             TEMPLATEROOT = 'assets/tmpl/'
-            return name.replace(TEMPLATEROOT, '')
+            return name.replace(TEMPLATEROOT, '').replace('.htm', '')
         src: ['<%= paths.temlatesSrc %>/**/*.htm']
-        dest: '<%= paths.temlatesDst %>/templates.js'
+        dest: '<%= paths.clientJS%>/templates.js'
     watch:
       grunt:
         files: ['Gruntfile.coffee']
