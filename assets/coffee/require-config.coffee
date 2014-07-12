@@ -20,7 +20,9 @@ require.config(
     'backbone.picky': fromLib 'backbone.picky/lib', 'backbone.picky'
     'backbone.syphon': fromLib 'backbone.syphon/lib', 'backbone.syphon'
     io: '/socket.io/socket.io'
-    
+    kineticjs : fromLib 'kineticjs', 'kinetic'
+    initStage: 'game/initStage'
+
   shim:
     handlebars:
       exports: 'Handlebars'
@@ -38,4 +40,10 @@ require.config(
       deps: ['backbone']
     'backbone.syphon':
       deps: ['backbone']
+    'game/ball': ['kineticjs']
+    'game/player': ['kineticjs']
+    'game/game': ['kineticjs']
+    'game/opponent': ['kineticjs']
+    initStage:
+      deps: ['kineticjs', 'game/ball', 'game/player', 'game/game', 'game/opponent']
 )
