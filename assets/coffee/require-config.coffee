@@ -19,6 +19,8 @@ require.config(
     'backbone.babysitter' : fromLib 'backbone.babysitter/lib/amd','backbone.babysitter'
     'backbone.picky': fromLib 'backbone.picky/lib', 'backbone.picky'
     'backbone.syphon': fromLib 'backbone.syphon/lib', 'backbone.syphon'
+    io: '/socket.io/socket.io'
+    
   shim:
     handlebars:
       exports: 'Handlebars'

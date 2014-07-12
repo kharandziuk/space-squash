@@ -1,5 +1,6 @@
 require ['require-config'], ()->
   require(
-    ['app'],
-    (app)-> app.start()
+    ['io'],
+    (io)->
+      io.connect()
   )
