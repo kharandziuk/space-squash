@@ -1,9 +1,12 @@
 define [
   'marionette'
   'templates'
+  'io'
+  'backbone.picky'
 ], (
   Marionette
   T
+  io
 ) ->
 
   require(['backbone.syphon'])
@@ -11,6 +14,29 @@ define [
   class LoginModel extends Backbone.Model
     url: 'login'
     idArgument: 'email'
+
+  class GamesInList extends Backbone.Model
+    initialize: ->
+      selectable = new Backbone.Picky.Selectable(@)
+      _.extend(@, selectable)# mixing Selectable behaviour
+             
+
+  class GamesCollection extends Backbone.Collection
+    model: GamesInList
+    initialize: ->
+      singleSelect = new Backbone.Picky.SingleSelect @
+      _.extend(@, singleSelect)
+    url: 'list'
+    parse: (resp)->
+      arr = _.pairs(resp)
+      arrRes = _.map(arr, (el)->
+        {
+          title: el[1]
+          token: el[0]
+        }
+      )
+      return arrRes
+
     
 
   class LoginView extends Marionette.ItemView
@@ -20,7 +46,6 @@ define [
       "submit form": "formSubmitted"
 
     formSubmitted: (e)->
-      console.log @
       e.preventDefault()
       data = Backbone.Syphon.serialize(this)
       @model.save(data).done((res)=>
@@ -29,22 +54,38 @@ define [
           alert 'fail'
       )
 
-
-  class ListView extends Marionette.ItemView
-    template: T['list']
+  class GameInListView extends Marionette.ItemView
+    template: Handlebars.compile("{{title}}")
+    tagName: 'li'
 
     events:
-      "submit form": "formSubmitted"
+      'click': ->
+        @model.select()
 
-    formSubmitted: (e)->
-      console.log @
-      e.preventDefault()
-      data = Backbone.Syphon.serialize(this)
-      @model.save(data).done((res)=>
-        @model.set token: res.token
-      ).fail(->
-          alert 'fail'
+
+  class ListView extends Marionette.CompositeView
+    template: T['list']
+    itemContainer: ".games-list"
+    itemView: GameInListView
+
+  class GameLayout extends Marionette.Layout
+    template: T['layout']
+
+    regions:
+      list: ".list"
+      form: ".form"
+
+  class GameView extends Marionette.ItemView
+    template: T['game']
+    onShow: ->
+      socket = io.connect()
+      socket.on('connect', ()->
+        console.log 'kapa'
+        socket.emit('wait', 'content')
       )
+      window.socket = socket
+    
+
 
   class Hub extends Marionette.Controller
 
@@ -52,15 +93,23 @@ define [
       @region = region
       @userModel = new LoginModel
       @showLoginView(@userModel)
-      @userModel.on('change:token', =>
-        @showListView()
+      @userModel.on('change:token', (model)=>
+        @showGame(model: model)
       )
 
     showLoginView: (model)->
+      @layout = new GameLayout()
+      @region.show @layout
       loginView = new LoginView(model: @userModel)
-      @region.show loginView
+      @layout.form.show loginView
+      games = new GamesCollection()
+      games.fetch()
+      listView = new ListView(collection: games)
+      @layout.list.show listView
+      games.on('select:one', (model)=>
+        @showGame(model: model)
+      )
 
-    showListView: ()->
-      loginView = new ListView()
-      @region.show loginView
-      
+    showGame: ()->
+      gameView = new GameView()
+      @region.show gameView

@@ -4,6 +4,8 @@ _ = require 'underscore'
 app = express()
 
 users = {}
+games = {}
+
 
 app.use(bodyParser.json())
 
@@ -25,6 +27,10 @@ app.post('/login', (req, res)->
 
 app.get('/login', (req, res)->
   console.log req.body
+)
+
+app.get('/list', (req, res)->
+  res.end(JSON.stringify users)
 )
 
 server = app.listen(3000)
