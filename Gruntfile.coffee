@@ -1,3 +1,5 @@
+TEMPLATEROOT = 'assets/tmpl/'
+ 
 module.exports = (grunt) ->
   require('time-grunt')(grunt)
   require('load-grunt-tasks')(grunt)
@@ -13,6 +15,7 @@ module.exports = (grunt) ->
       clientCoffee: 'assets/coffee'
       serverCoffee: 'server/'
       less: 'assets/less'
+      temlatesSrc: TEMPLATEROOT
       testsSrc: 'assets/tests'
       imgSrc: 'assets/images'
 
@@ -30,6 +33,16 @@ module.exports = (grunt) ->
   grunt.initConfig({
     paths: pathsConfig(),
     pkg: appConfig,
+    handlebars:
+      compile:
+        options:
+          amd: true
+          processName: (name) ->
+            console.log name
+            TEMPLATEROOT = 'assets/tmpl/'
+            return name.replace(TEMPLATEROOT, '')
+        src: ['<%= paths.temlatesSrc %>/**/*.htm']
+        dest: '<%= paths.temlatesDst %>/templates.js'
     watch:
       grunt:
         files: ['Gruntfile.coffee']
@@ -39,6 +52,16 @@ module.exports = (grunt) ->
       less:
         files: ['<%= paths.less %>/**/*.less']
         tasks: ['less']
+        options:
+          nospawn: true
+      handlebars:
+        files: ['<%= paths.temlatesSrc %>/**',]
+        tasks: ['handlebars']
+        options:
+          nospawn: true
+      copy:
+        files: ['<%= paths.imgSrc %>/**',]
+        tasks: ['copy']
         options:
           nospawn: true
     bower:
@@ -60,7 +83,7 @@ module.exports = (grunt) ->
             '<%= paths.css %>/app.css': '<%= paths.less %>/app.less',
             '<%= paths.css %>/base.css': '<%= paths.less %>/base.less'
           }
-    coffee: {
+    coffee:
       client:
         options:
           bare: true
@@ -70,6 +93,17 @@ module.exports = (grunt) ->
         src: ['**/*.coffee']
         dest: '<%= paths.clientJS %>'
         ext: '.js'
+    copy:
+      templates:
+        expand: true
+        cwd: '<%= paths.temlatesSrc %>'
+        src: ['**']
+        dest: '<%= paths.temlatesDst %>'
+      images:
+        expand: true
+        cwd: '<%= paths.imgSrc %>'
+        src: ['**']
+        dest: '<%= paths.imgDst %>'
       #server:
       #  options:
       #    bare: true
@@ -79,10 +113,11 @@ module.exports = (grunt) ->
       #  src: ['**/*.coffee']
       #  dest: '<%= paths.serverJS %>'
       #  ext: '.js'
-    }
+ 
+    
   })
   grunt.registerTask('runApp', ()->require('./app'))
 
-  grunt.registerTask('build', ['newer:coffee', 'newer:less', ])
+  grunt.registerTask('build', ['newer:coffee', 'newer:less', 'copy', 'handlebars'])
   grunt.registerTask('server', ['build', 'runApp','watch'])
   grunt.registerTask('default', ['server'])
