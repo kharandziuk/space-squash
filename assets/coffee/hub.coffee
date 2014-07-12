@@ -10,6 +10,8 @@ define [
 
   class LoginModel extends Backbone.Model
     url: 'login'
+    idArgument: 'email'
+    
 
   class LoginView extends Marionette.ItemView
     template: T['login']
@@ -32,5 +34,8 @@ define [
       loginView = new LoginView(model: loginModel)
       region.show loginView
       loginModel.on('change', ->
-         @save()
+        @sync("create").done((res)->
+          alert 'cp'
+          console.log res
+        )
       )
