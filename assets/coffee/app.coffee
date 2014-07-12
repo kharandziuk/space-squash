@@ -1,14 +1,18 @@
-define ['backbone', 'marionette'], (Backbone, Marionette)  ->
+define ['backbone', 'marionette', 'hub'], (Backbone, Marionette, Hub)  ->
 
   app = new Marionette.Application()
 
   API =
-    startApp: ()->
-      alert 'app start'
+    startApp: ->
+      hub = new Hub(region: app.mainRegion)
 
   app.navigate = (route, options) ->
     options || (options = {})
     Backbone.history.navigate(route, options)
+
+
+  app.addRegions
+    mainRegion: '#main-region'
 
   Router = Marionette.AppRouter.extend(
     appRoutes:
