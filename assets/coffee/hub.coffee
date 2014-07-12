@@ -23,19 +23,22 @@ define [
       console.log @
       e.preventDefault()
       data = Backbone.Syphon.serialize(this)
-      console.log data
-      @model.set(data)
-
+      @model.save(data).done((res)=>
+        model.set token: res.token
+      ).fail(->
+          alert 'fail'
+      )
 
   class Hub extends Marionette.Controller
 
     initialize: ({region})->
-      loginModel = new LoginModel
-      loginView = new LoginView(model: loginModel)
-      region.show loginView
-      loginModel.on('change', ->
-        @sync("create").done((res)->
-          alert 'cp'
-          console.log res
-        )
+      @region = region
+      userModel = new LoginModel
+      @showLoginView(userModel)
+      userModel.on('change:token', =>
+        
       )
+
+    showLoginView: (model)->
+      loginView = new LoginView(model: model)
+      @region.show loginView
