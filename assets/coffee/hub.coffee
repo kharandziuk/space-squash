@@ -24,7 +24,24 @@ define [
       e.preventDefault()
       data = Backbone.Syphon.serialize(this)
       @model.save(data).done((res)=>
-        model.set token: res.token
+        @model.set token: res.token
+      ).fail(->
+          alert 'fail'
+      )
+
+
+  class ListView extends Marionette.ItemView
+    template: T['list']
+
+    events:
+      "submit form": "formSubmitted"
+
+    formSubmitted: (e)->
+      console.log @
+      e.preventDefault()
+      data = Backbone.Syphon.serialize(this)
+      @model.save(data).done((res)=>
+        @model.set token: res.token
       ).fail(->
           alert 'fail'
       )
@@ -33,12 +50,17 @@ define [
 
     initialize: ({region})->
       @region = region
-      userModel = new LoginModel
-      @showLoginView(userModel)
-      userModel.on('change:token', =>
-        
+      @userModel = new LoginModel
+      @showLoginView(@userModel)
+      @userModel.on('change:token', =>
+        @showListView()
       )
 
     showLoginView: (model)->
-      loginView = new LoginView(model: model)
+      loginView = new LoginView(model: @userModel)
       @region.show loginView
+
+    showListView: ()->
+      loginView = new ListView()
+      @region.show loginView
+      
