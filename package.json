@@ -17,5 +17,8 @@
   },
   "scripts": {
     "test": "???"
+  },
+  "dependencies": {
+    "express": "^4.6.0"
   }
 }
